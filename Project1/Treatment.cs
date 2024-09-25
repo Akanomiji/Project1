@@ -11,15 +11,15 @@ using System.Windows.Forms;
 
 namespace Project1
 {
-    public partial class TreatmentMethod : Form
+    public partial class Treatment : Form
     {
         SqlConnection conn = new SqlConnection();
         SqlCommand cmd = new SqlCommand();
-        public TreatmentMethod()
+        public Treatment()
         {
             InitializeComponent();
             connectDB();
-            getTreatmentMethod();
+            getTreatment();
         }
 
         public void connectDB()
@@ -27,12 +27,12 @@ namespace Project1
             conn.ConnectionString = "Data Source=Agent;Initial Catalog=CScompany;Integrated Security=True;";
             conn.Open();
             cmd.Connection = conn;
-            getTreatmentMethod();
+            getTreatment();
         }
 
-        public void getTreatmentMethod()
+        public void getTreatment()
         {
-            cmd.CommandText = "select * from TreatmentMethod";
+            cmd.CommandText = "select * from Treatment";
             SqlDataAdapter adapter = new SqlDataAdapter();
             adapter.SelectCommand = cmd;
             DataTable table = new DataTable();
@@ -41,60 +41,70 @@ namespace Project1
             dataGridView1.DataSource = bindingSource1;
 
             dataGridView1.Columns[0].HeaderText = "รหัสวิธีรักษา";
-            dataGridView1.Columns[1].HeaderText = "คำอธิบาย";
-            dataGridView1.Columns[2].HeaderText = "ราคา";
-            dataGridView1.Columns[3].HeaderText = "รหัสพนักงาน";
+            dataGridView1.Columns[1].HeaderText = "ชื่อการรักษา";
+            dataGridView1.Columns[2].HeaderText = "คำอธิบาย";
+            dataGridView1.Columns[3].HeaderText = "ราคา";
+            dataGridView1.Columns[4].HeaderText = "วันและเวลา";
+
         }
 
-        private void TreatmentMethodsID_KeyDown(object sender, KeyEventArgs e)
+        private void TreatmentID_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.KeyCode == Keys.Enter)
             {
-                cmd.CommandText = "select * from TreatmentMethods where TreatmentMethodsID = '" + TreatmentMethodsID.Text + "' ";
-                
+                cmd.CommandText = "select * from Treatment where TreatmentID = '" + TreatmentID.Text + "' ";
+
                 SqlDataReader rs = cmd.ExecuteReader();
                 if (rs.HasRows)
                 {
                     rs.Read();
-                    Description.Text = rs.GetString(1);
-                    TreatmentMethodsPrice.Text = rs.GetString(2);
-                    EmployeeID.Text = rs.GetString(3);
+                    TreatmentName.Text = rs.GetString(1);
+                    Description.Text = rs.GetString(2);
+                    TreatmentPrice.Text = rs.GetString(3);
+                    dateTimePicker1.Text = rs.GetString(4);
                 }
                 else
                 {
+                    TreatmentName.Clear();
                     Description.Clear();
-                    TreatmentMethodsPrice.Clear();
-                    EmployeeID.Clear();
+                    TreatmentPrice.Clear();
+                    dateTimePicker1.Text = " ";
                 }
                 rs.Close();
             }
+            
+            TreatmentName.Focus();
+        }
+
+        private void TreatmentName_TextChanged(object sender, EventArgs e)
+        {
             Description.Focus();
         }
 
-        private void TreatmentMethodsPrice_KeyDown(object sender, KeyEventArgs e)
+        private void Description_TextChanged(object sender, EventArgs e)
         {
-            EmployeeID.Focus();
+            TreatmentPrice.Focus();
         }
 
-        private void Description_KeyDown(object sender, KeyEventArgs e)
+        private void TreatmentPrice_TextChanged(object sender, EventArgs e)
         {
-            TreatmentMethodsPrice.Focus();
+
         }
 
         private void bNew_Click(object sender, EventArgs e)
         {
-            TreatmentMethodsID.Clear();
+            TreatmentID.Clear();
+            TreatmentName.Clear();
             Description.Clear();
-            TreatmentMethodsPrice.Clear();
-            EmployeeID.Clear();
-            TreatmentMethodsID.Focus();
+            TreatmentPrice.Clear();
+            dateTimePicker1.Text = " ";
         }
 
         private void bInsert_Click(object sender, EventArgs e)
         {
             try
             {
-                cmd.CommandText = "insert into TreatmentMethods values('" + TreatmentMethodsID.Text + "','" + Description.Text + "','" + TreatmentMethodsPrice.Text + "','" + EmployeeID.Text + "')";
+                cmd.CommandText = "insert into Treatment values('" + TreatmentID.Text + "','" + Description.Text + "','" + TreatmentPrice.Text + "','" + TreatmentName.Text + "','" + dateTimePicker1.Text + "')";
                 cmd.ExecuteNonQuery();
                 MessageBox.Show("บันทึกข้อมูลเรียบร้อย");
             }
@@ -108,7 +118,7 @@ namespace Project1
         {
             try
             {
-                cmd.CommandText = "update TreatmentMethods set Description='" + Description.Text + "',TreatmentMethodsPrice='" + TreatmentMethodsPrice.Text + "',EmployeeID='" + EmployeeID.Text + "' where TreatmentMethodsID='" + TreatmentMethodsID.Text + "'";
+                cmd.CommandText = "update Treatment set Description='" + Description.Text + "',DateTime='" + dateTimePicker1.Text + "',TreatmentName='" + TreatmentName.Text + "',TreatmentPrice='" + TreatmentPrice.Text + "' where TreatmentID ='" + TreatmentID.Text + "'";
                 cmd.ExecuteNonQuery();
                 MessageBox.Show("คุณจะทำการแก้ไขข้อมูลหรือไม่", "OK", MessageBoxButtons.OKCancel);
             }
@@ -122,19 +132,22 @@ namespace Project1
         {
             try
             {
-                cmd.CommandText = "delete from TreatmentMethods where TreatmentMethodsID='" + TreatmentMethodsID.Text + "' and Description='" + Description.Text + "' and TreatmentMethodsPrice='" + TreatmentMethodsPrice.Text + "'";
+                cmd.CommandText = "delete from Treatment where TreatmentID='" + TreatmentID.Text + "' and Description='" + Description.Text + "' and TreatmentPrice='" + TreatmentPrice.Text + "' and TreatmentName='" + TreatmentName.Text + "' and DateTime='" + dateTimePicker1.Text + "'";
                 cmd.ExecuteNonQuery();
                 MessageBox.Show("คุณต้องการที่จะลบหรือไม่", "OK", MessageBoxButtons.OKCancel);
-                TreatmentMethodsID.Clear();
+                TreatmentID.Clear();
+                TreatmentName.Clear();
                 Description.Clear();
-                TreatmentMethodsPrice.Clear();
-                EmployeeID.Clear();
+                TreatmentPrice.Clear();
+                dateTimePicker1.Text = " ";
             }
             catch (Exception ex)
             {
                 MessageBox.Show("ไม่มีค่าให้ลบ");
             }
         }
+
+
 
         private void bClose_Click(object sender, EventArgs e)
         {
